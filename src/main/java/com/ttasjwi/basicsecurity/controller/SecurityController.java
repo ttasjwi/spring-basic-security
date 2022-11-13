@@ -1,4 +1,4 @@
-package com.ttasjwi.basicSecurity.controller;
+package com.ttasjwi.basicsecurity.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;

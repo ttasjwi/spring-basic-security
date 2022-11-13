@@ -1,4 +1,4 @@
-package com.ttasjwi.basicSecurity;
+package com.ttasjwi.basicsecurity;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
