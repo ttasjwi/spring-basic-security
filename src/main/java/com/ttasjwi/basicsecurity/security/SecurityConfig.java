@@ -8,6 +8,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+
+import javax.servlet.http.HttpSession;
 
 
 @Slf4j
@@ -17,20 +21,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // 인가 정책 : 모든 요청 -> 인증 필요
         http.authorizeRequests(requests -> requests.anyRequest().authenticated());
 
-        // 인증 정책 : Form 로그인 방식으로 인증
-        http.formLogin()
-//                .loginPage("/loginPage")
-                .defaultSuccessUrl("/")
-                .failureUrl("/login")
-                .usernameParameter("userId")
-                .passwordParameter("passwd")
-                .loginProcessingUrl("/login_proc")
-//                .successHandler(loginSuccessHandler())
-//                .failureHandler(loginFailureHandler())
-                .permitAll(); // form 로그인과 관련된 요청은 모두 허락
+        http.formLogin();
+
+        http.logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login")
+                .deleteCookies("JSESSIONID", "remember-me")
+                .addLogoutHandler(logoutHandler())
+                .logoutSuccessHandler(logoutSuccessHandler());
     }
 
     private static AuthenticationSuccessHandler loginSuccessHandler() {
@@ -45,6 +45,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             log.info("exception : {}", exception.getMessage());
             response.sendRedirect("/login");
         };
+    }
+
+    private LogoutHandler logoutHandler() {
+        return ((request, response, authentication) -> {
+            HttpSession session = request.getSession();
+            session.invalidate(); // 세션 무효화
+        });
+    }
+
+    private LogoutSuccessHandler logoutSuccessHandler() {
+        return ((request, response, authentication) -> {
+            response.sendRedirect("/login");
+        });
     }
 
 }
